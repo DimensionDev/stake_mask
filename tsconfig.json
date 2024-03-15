@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "strictNullChecks": true
+  },
+  "include": ["./hardhatTest", "./types", "./deploy"],
+  "files": ["./hardhat.config.ts"]
+}

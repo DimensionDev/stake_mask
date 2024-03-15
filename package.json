@@ -1,0 +1,51 @@
+{
+  "name": "initialize-contract-template",
+  "version": "1.0.0",
+  "description": "A template to create a smart contract project with hardhat-foundry hybrid framework",
+  "author": "space-station09",
+  "license": "MIT",
+  "scripts": {
+    "lint": "solhint 'src/**/*.sol'",
+    "compile": "npx hardhat compile",
+    "coverage": "npx hardhat coverage --solcoverjs .solcover.js",
+    "deploy": "hardhat deploy --network",
+    "integration": "npx hardhat test"
+  },
+  "devDependencies": {
+    "@dimensiondev/eslint-plugin": "^0.0.2-20220516081411-2649814",
+    "@nomiclabs/buidler": "^1.4.8",
+    "@nomiclabs/hardhat-ethers": "^2.0.6",
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/hardhat-upgrades": "^1.17.0",
+    "@typechain/ethers-v5": "^10.0.0",
+    "@typechain/hardhat": "^6.0.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.0",
+    "eslint": "^8.16.0",
+    "ethers": "^5.6.8",
+    "hardhat": "^2.9.1",
+    "hardhat-deploy": "^0.11.5",
+    "hardhat-deploy-ethers": "^0.3.0-beta.13",
+    "hardhat-gas-reporter": "^1.0.8",
+    "mocha": "^10.0.0",
+    "solidity-coverage": "^0.7.20",
+    "toml": "^3.0.0",
+    "ts-node": "^10.8.0",
+    "typechain": "^8.0.0",
+    "typescript": "^4.7.2",
+    "forge-std": "github:foundry-rs/forge-std#v1",
+    "ds-test": "github:dapphub/ds-test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/contracts-upgradeable": "^4.6.0",
+    "ethereum-waffle": "^3.4.4"
+  }
+}

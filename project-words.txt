@@ -1,0 +1,14 @@
+buidler
+camelcase
+eqeqeq
+mixedcase
+nomiclabs
+prettierignore
+rari
+reentrancy
+snakecase
+solcover
+solcoverjs
+solhint
+solmate
+typechain

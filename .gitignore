@@ -1,0 +1,18 @@
+node_modules/
+lib/
+
+# Private info file
+*.env
+*.log
+
+# Generated files
+.DS_Store
+artifacts/
+cache-hardhat/
+cache/
+out/
+types/
+coverage/
+package-lock.json
+!broadcast
+broadcast/*

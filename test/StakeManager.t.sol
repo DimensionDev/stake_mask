@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
@@ -19,7 +19,7 @@ contract StakeManagerCobstructorTest is Test {
         vm.stopPrank();
     }
 
-    function testConstructor() public {
+    function testConstructor() public view {
         address owner = stakeManager.owner();
         address maskTokenAddress = address(stakeManager.maskToken());
         assertTrue(owner == address(0x01));

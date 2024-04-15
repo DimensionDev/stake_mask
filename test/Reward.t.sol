@@ -4,6 +4,7 @@ pragma solidity ^0.8.12;
 import "forge-std/Test.sol";
 import "../src/Reward.sol";
 import "../src/TestToken.sol";
+import "murky/Merkle.sol";
 
 contract RewardConstructorTest is Test {
     Reward internal reward;
@@ -21,7 +22,7 @@ contract RewardConstructorTest is Test {
         vm.stopPrank();
     }
 
-    function testConstructor() public {
+    function testConstructor() public view {
         address owner = reward.owner();
         assertTrue(owner == address(0x01));
     }
@@ -74,6 +75,8 @@ contract RewardUserageTest is Test {
     Reward internal reward;
     TestToken internal rewardToken1;
     TestToken internal rewardToken2;
+    bytes32[] internal proof1;
+    bytes32[] internal proof2;
 
     function setUp() public {
         vm.label(address(0x01), "contractCreator");
@@ -87,16 +90,65 @@ contract RewardUserageTest is Test {
         rewardToken1.transfer(address(reward), initialSupply);
         rewardToken2.transfer(address(reward), initialSupply);
 
+        // generate merkle tree
+        Merkle m = new Merkle();
+        bytes32[] memory data = new bytes32[](2);
+        data[0] = keccak256(abi.encodePacked(address(0x02), uint256(20 * 10 ** 18)));
+        data[1] = keccak256(abi.encodePacked(address(0x03), uint256(30 * 10 ** 18)));
+        bytes32 root = m.getRoot(data);
+        proof1 = m.getProof(data, 0);
+        proof2 = m.getProof(data, 0);
+
         reward.createRewardPool(
-            Reward.RewardPool({ unlocked: true, rewardToken: address(rewardToken1), whitelistRoot: bytes32(0x0) })
+            Reward.RewardPool({ unlocked: true, rewardToken: address(rewardToken1), whitelistRoot: root })
         );
 
         reward.createRewardPool(
-            Reward.RewardPool({ unlocked: true, rewardToken: address(rewardToken2), whitelistRoot: bytes32(0x0) })
+            Reward.RewardPool({ unlocked: false, rewardToken: address(rewardToken2), whitelistRoot: root })
         );
 
         vm.stopPrank();
     }
 
-    function testClaim() public { }
+    function testClaim() public {
+        startHoax(address(0x02));
+
+        vm.expectEmit();
+        emit Reward.RewardClaimed(0, address(0x02), 20 * 10 ** 18);
+
+        reward.claim(0, 20 * 10 ** 18, proof1);
+
+        uint256 balance = rewardToken1.balanceOf(address(0x02));
+        assertTrue(balance == 20 * 10 ** 18);
+    }
+
+    function testRevertClaimed() public {
+        startHoax(address(0x02));
+
+        reward.claim(0, 20 * 10 ** 18, proof1);
+
+        vm.expectRevert("Already claimed");
+        reward.claim(0, 20 * 10 ** 18, proof1);
+    }
+
+    function testRevertNotMatchedAccount() public {
+        startHoax(address(0x05));
+
+        vm.expectRevert("Invalid proof");
+        reward.claim(0, 20 * 10 ** 18, proof1);
+    }
+
+    function testRevertNotMatchedAmount() public {
+        startHoax(address(0x02));
+
+        vm.expectRevert("Invalid proof");
+        reward.claim(0, 30 * 10 ** 18, proof1);
+    }
+
+    function testRevertPoolLocked() public {
+        startHoax(address(0x02));
+
+        vm.expectRevert("Pool is locked");
+        reward.claim(1, 20 * 10 ** 18, proof1);
+    }
 }

@@ -74,3 +74,38 @@ withdraw(uint256 _amount) public {}
   ```solidity
   unstaked(address indexed account, uint8 indexed poolId, uint256 unStakedAmount);
   ```
+
+## Function Briefing in `Reward.sol`
+
+### General Description
+
+The backend will calculate the number of points based on contract events on-chain, thereby generating the MerkleTree root for each user's amount of RewardToken. Users can use the MerkleProof to claim their RewardToken rewards.
+
+### Workflow in reward contract
+
+1. Users get the proof data on frontend pages.
+2. Users using proof data to call `claim()` to claim reward tokens.
+
+### API
+
+### claim
+
+Users using proof data to call `claim()` to claim reward tokens.
+
+```solidity
+function claim(uint8 _poolId, uint256 _amount, bytes32[] calldata _proof) public {}
+```
+
+- parameters:
+  - `_poolId`: reward pool id
+  - `_amount`: Amount of reward tokens (get from frontend page)
+  - `_proof`: merkle proof (get from frontend page)
+- Requirements:
+  - correct \_amount and \_proof using the correct msg.sender.
+  - only can claim once for each address on one reward pool.
+  - reward pool is unlocked.
+- Events:
+
+  ```solidity
+  RewardClaimed(uint8 indexed poolId, address indexed account, uint256 amount);
+  ```

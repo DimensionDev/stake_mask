@@ -19,6 +19,8 @@ contract Reward is Ownable, ReentrancyGuard {
     mapping(uint8 => mapping(address => uint256)) public userRewards;
 
     event RewardClaimed(uint8 indexed poolId, address indexed account, uint256 amount);
+    event RewardPoolCreated(uint8 indexed poolId, bool unlocked, address rewardToken, bytes32 whitelistRoot);
+    event RewardPoolUpdated(uint8 indexed poolId, bool unlocked, address rewardToken, bytes32 whitelistRoot);
 
     constructor() Ownable() { }
 
@@ -39,6 +41,9 @@ contract Reward is Ownable, ReentrancyGuard {
 
     function createRewardPool(RewardPool calldata _rewardPool) public onlyOwner {
         rewardPools.push(_rewardPool);
+        emit RewardPoolCreated(
+            uint8(rewardPools.length - 1), _rewardPool.unlocked, _rewardPool.rewardToken, _rewardPool.whitelistRoot
+        );
     }
 
     function updateRewardPool(uint8 _poolId, RewardPool calldata _pool) public onlyOwner {
@@ -46,6 +51,7 @@ contract Reward is Ownable, ReentrancyGuard {
         rewardPool.unlocked = _pool.unlocked;
         rewardPool.rewardToken = _pool.rewardToken;
         rewardPool.whitelistRoot = _pool.whitelistRoot;
+        emit RewardPoolUpdated(_poolId, _pool.unlocked, _pool.rewardToken, _pool.whitelistRoot);
     }
 
     function emergencyWithdraw(address _token, uint256 _amount) public onlyOwner {

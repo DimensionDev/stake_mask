@@ -32,7 +32,7 @@ contract StakeManagerCobstructorTest is Test {
             StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
 
         vm.expectEmit();
-        emit StakeManager.PoolCreated(0);
+        emit StakeManager.PoolCreated(0, 10, 20, true, true);
 
         stakeManager.createPool(pool);
 
@@ -77,6 +77,9 @@ contract StakeManagerOwnerChangeTest is Test {
         startHoax(address(0x01));
         StakeManager.Pool memory newPool =
             StakeManager.Pool({ startBlock: 20, endBlock: 30, unlocked: false, stakingEnabled: true });
+
+        vm.expectEmit();
+        emit StakeManager.PoolUpdated(0, 20, 30, false, true);
         stakeManager.updatePool(0, newPool);
 
         (uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled) = stakeManager.pools(0);
@@ -94,6 +97,17 @@ contract StakeManagerOwnerChangeTest is Test {
 
         vm.expectRevert();
         stakeManager.updatePool(1, newPool);
+    }
+
+    function testChangeCurrentPoolId() public {
+        startHoax(address(0x01));
+        pool = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+        stakeManager.createPool(pool);
+        vm.expectEmit();
+        emit StakeManager.CurrentPoolIdChanged(0, 1);
+        stakeManager.updateCurrentPoolId(1);
+
+        assertTrue(stakeManager.currentPoolId() == 1);
     }
 
     function testRevertStakingNotEnabledPool() public {
@@ -151,7 +165,7 @@ contract StakeManagerUsageTest is Test {
         vm.expectEmit();
         emit StakeManager.Staked(address(0x02), stakeManager.currentPoolId(), 100 * 10 ** 18);
 
-        stakeManager.deposit(100 * 10 ** 18);
+        stakeManager.depositAndLock(100 * 10 ** 18);
         vm.stopPrank();
     }
 
@@ -162,7 +176,7 @@ contract StakeManagerUsageTest is Test {
         vm.expectEmit();
         emit StakeManager.Staked(address(0x02), stakeManager.currentPoolId(), 100 * 10 ** 18);
 
-        stakeManager.deposit(100 * 10 ** 18);
+        stakeManager.depositAndLock(100 * 10 ** 18);
 
         (uint256 stakedAmount, uint8 poolId) = stakeManager.userInfos(address(0x02));
 

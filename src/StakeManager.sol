@@ -32,14 +32,15 @@ contract StakeManager is Ownable, ReentrancyGuard {
     event Staked(address indexed account, uint8 indexed poolId, uint256 stakedAmount);
     event StakeChanged(address indexed account, uint8 indexed fromPoolId, uint8 indexed toPoolId);
     event unstaked(address indexed account, uint8 indexed poolId, uint256 unStakedAmount);
-    event PoolCreated(uint8 indexed poolId);
-    event PoolUpdated(uint8 indexed poolId);
+    event PoolCreated(uint8 indexed poolId, uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled);
+    event PoolUpdated(uint8 indexed poolId, uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled);
+    event CurrentPoolIdChanged(uint8 indexed fromPoolId, uint8 indexed toPoolId);
 
     constructor(address _maskToken) Ownable() {
         maskToken = IERC20(_maskToken);
     }
 
-    function deposit(uint256 _amount) public nonReentrant {
+    function depositAndLock(uint256 _amount) public nonReentrant {
         Pool storage pool = pools[currentPoolId];
 
         require(pool.stakingEnabled, "Staking is disabled for this pool");
@@ -79,7 +80,9 @@ contract StakeManager is Ownable, ReentrancyGuard {
 
     function createPool(Pool calldata _pool) public onlyOwner {
         pools.push(_pool);
-        emit PoolCreated(uint8(pools.length - 1));
+        emit PoolCreated(
+            uint8(pools.length - 1), _pool.startBlock, _pool.endBlock, _pool.unlocked, _pool.stakingEnabled
+        );
     }
 
     function updatePool(uint8 _poolId, Pool calldata _pool) public onlyOwner {
@@ -89,13 +92,16 @@ contract StakeManager is Ownable, ReentrancyGuard {
         pool.unlocked = _pool.unlocked;
         pool.stakingEnabled = _pool.stakingEnabled;
 
-        emit PoolUpdated(_poolId);
+        emit PoolUpdated(_poolId, _pool.startBlock, _pool.endBlock, _pool.unlocked, _pool.stakingEnabled);
     }
 
     function updateCurrentPoolId(uint8 _poolId) public onlyOwner {
+        uint8 fromPoolId = currentPoolId;
         Pool storage pool = pools[_poolId];
         require(pool.stakingEnabled, "Staking is disabled for this pool");
 
         currentPoolId = _poolId;
+
+        emit CurrentPoolIdChanged(fromPoolId, _poolId);
     }
 }

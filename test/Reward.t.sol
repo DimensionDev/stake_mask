@@ -32,6 +32,9 @@ contract RewardConstructorTest is Test {
         Reward.RewardPool memory pool =
             Reward.RewardPool({ unlocked: true, rewardToken: address(rewardToken1), whitelistRoot: bytes32(0x0) });
 
+        vm.expectEmit();
+        emit Reward.RewardPoolCreated(0, true, address(rewardToken1), bytes32(0x0));
+
         reward.createRewardPool(pool);
 
         (bool unlocked, address rewardToken, bytes32 whitelistRoot) = reward.rewardPools(0);
@@ -50,6 +53,9 @@ contract RewardConstructorTest is Test {
 
         Reward.RewardPool memory updatedPool =
             Reward.RewardPool({ unlocked: false, rewardToken: address(0x2), whitelistRoot: bytes32(0x0) });
+
+        vm.expectEmit();
+        emit Reward.RewardPoolUpdated(0, false, address(0x2), bytes32(0x0));
 
         reward.updateRewardPool(0, updatedPool);
 

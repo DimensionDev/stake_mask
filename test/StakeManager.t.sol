@@ -205,12 +205,14 @@ contract StakeManagerUsageTest is Test {
 
     function testChangePool() public {
         _deposit();
+        startHoax(address(0x01));
+        stakeManager.updateCurrentPoolId(1);
         startHoax(address(0x02));
 
         vm.expectEmit();
         emit StakeManager.StakeChanged(address(0x02), 0, 1);
 
-        stakeManager.changePool(1);
+        stakeManager.changePool();
 
         (uint256 stakedAmount, uint8 poolId) = stakeManager.userInfos(address(0x02));
 
@@ -220,19 +222,12 @@ contract StakeManagerUsageTest is Test {
         vm.stopPrank();
     }
 
-    function testRevertStakingDisabled() public {
-        _deposit();
-        startHoax(address(0x02));
-
-        vm.expectRevert("Staking is disabled for this pool");
-        stakeManager.changePool(2);
-    }
-
     function testRevertUnlocked() public {
         _deposit();
+        startHoax(address(0x01));
+        stakeManager.updateCurrentPoolId(1);
         startHoax(address(0x02));
-
-        stakeManager.changePool(1);
+        stakeManager.changePool();
 
         vm.expectRevert("Pool is locked");
         stakeManager.withdraw(100 * 10 ** 18);

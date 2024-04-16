@@ -47,6 +47,10 @@ contract StakeManager is Ownable, ReentrancyGuard {
 
         require(maskToken.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
         userInfos[msg.sender].stakedAmount += _amount;
+        // depositAndLock will always stake to currentPoolId
+        // it will init userInfos[msg.sender].poolId for the first time
+        // it will change userInfos[msg.sender].poolId to currntPoolId(which means new pool) when
+        //   user deposit after prev pool unlocked
         userInfos[msg.sender].poolId = currentPoolId;
 
         emit Staked(msg.sender, currentPoolId, _amount);
@@ -64,18 +68,18 @@ contract StakeManager is Ownable, ReentrancyGuard {
         emit unstaked(msg.sender, userInfos[msg.sender].poolId, _amount);
     }
 
-    function changePool(uint8 _poolId) public nonReentrant {
+    function changePool() public nonReentrant {
         uint8 fromPoolId = userInfos[msg.sender].poolId;
         Pool storage fromPool = pools[userInfos[msg.sender].poolId];
-        Pool storage toPool = pools[_poolId];
+        Pool storage toPool = pools[currentPoolId];
 
         require(toPool.stakingEnabled, "Staking is disabled for this pool");
         require(fromPool.unlocked, "From pool is locked");
         require(userInfos[msg.sender].stakedAmount > 0, "No staked amount");
 
-        userInfos[msg.sender].poolId = _poolId;
+        userInfos[msg.sender].poolId = currentPoolId;
 
-        emit StakeChanged(msg.sender, fromPoolId, _poolId);
+        emit StakeChanged(msg.sender, fromPoolId, currentPoolId);
     }
 
     function createPool(Pool calldata _pool) public onlyOwner {

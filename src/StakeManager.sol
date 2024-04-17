@@ -41,7 +41,7 @@ contract StakeManager is Ownable, ReentrancyGuard {
     }
 
     function depositAndLock(uint256 _amount) public nonReentrant {
-        Pool storage pool = pools[currentPoolId];
+        Pool memory pool = pools[currentPoolId];
 
         require(pool.stakingEnabled, "Staking is disabled for this pool");
 
@@ -57,7 +57,7 @@ contract StakeManager is Ownable, ReentrancyGuard {
     }
 
     function withdraw(uint256 _amount) public nonReentrant {
-        Pool storage pool = pools[userInfos[msg.sender].poolId];
+        Pool memory pool = pools[userInfos[msg.sender].poolId];
 
         require(pool.unlocked, "Pool is locked");
         require(userInfos[msg.sender].stakedAmount >= _amount, "Insufficient balance");

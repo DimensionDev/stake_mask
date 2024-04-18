@@ -10,10 +10,10 @@ contract StakeManager is Ownable, ReentrancyGuard {
     IERC20 public maskToken;
 
     struct Pool {
-        // startblock and endblock are set for the convenience of external reading and
-        // do not participate in business logic.
-        uint256 startBlock;
-        uint256 endBlock;
+        // pointAccStartBlock and pointAccEndBlock are set for external reading and
+        // do not participate in business logic on contract.
+        uint256 pointAccStartBlock;
+        uint256 pointAccEndBlock;
         bool unlocked;
         bool stakingEnabled;
     }
@@ -32,8 +32,12 @@ contract StakeManager is Ownable, ReentrancyGuard {
     event Staked(address indexed account, uint8 indexed poolId, uint256 stakedAmount);
     event StakeChanged(address indexed account, uint8 indexed fromPoolId, uint8 indexed toPoolId);
     event unstaked(address indexed account, uint8 indexed poolId, uint256 unStakedAmount);
-    event PoolCreated(uint8 indexed poolId, uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled);
-    event PoolUpdated(uint8 indexed poolId, uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled);
+    event PoolCreated(
+        uint8 indexed poolId, uint256 pointAccStartBlock, uint256 pointAccEndBlock, bool unlocked, bool stakingEnabled
+    );
+    event PoolUpdated(
+        uint8 indexed poolId, uint256 pointAccStartBlock, uint256 pointAccEndBlock, bool unlocked, bool stakingEnabled
+    );
     event CurrentPoolIdChanged(uint8 indexed fromPoolId, uint8 indexed toPoolId);
 
     constructor(address _maskToken) Ownable() {
@@ -85,18 +89,24 @@ contract StakeManager is Ownable, ReentrancyGuard {
     function createPool(Pool calldata _pool) public onlyOwner {
         pools.push(_pool);
         emit PoolCreated(
-            uint8(pools.length - 1), _pool.startBlock, _pool.endBlock, _pool.unlocked, _pool.stakingEnabled
+            uint8(pools.length - 1),
+            _pool.pointAccStartBlock,
+            _pool.pointAccEndBlock,
+            _pool.unlocked,
+            _pool.stakingEnabled
         );
     }
 
     function updatePool(uint8 _poolId, Pool calldata _pool) public onlyOwner {
         Pool storage pool = pools[_poolId];
-        pool.startBlock = _pool.startBlock;
-        pool.endBlock = _pool.endBlock;
+        pool.pointAccStartBlock = _pool.pointAccStartBlock;
+        pool.pointAccEndBlock = _pool.pointAccEndBlock;
         pool.unlocked = _pool.unlocked;
         pool.stakingEnabled = _pool.stakingEnabled;
 
-        emit PoolUpdated(_poolId, _pool.startBlock, _pool.endBlock, _pool.unlocked, _pool.stakingEnabled);
+        emit PoolUpdated(
+            _poolId, _pool.pointAccStartBlock, _pool.pointAccEndBlock, _pool.unlocked, _pool.stakingEnabled
+        );
     }
 
     function updateCurrentPoolId(uint8 _poolId) public onlyOwner {

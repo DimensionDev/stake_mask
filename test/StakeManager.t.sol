@@ -29,17 +29,18 @@ contract StakeManagerCobstructorTest is Test {
     function testCreatePool() public {
         startHoax(address(0x01));
         StakeManager.Pool memory pool =
-            StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
 
         vm.expectEmit();
         emit StakeManager.PoolCreated(0, 10, 20, true, true);
 
         stakeManager.createPool(pool);
 
-        (uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled) = stakeManager.pools(0);
+        (uint256 pointAccStartBlock, uint256 pointAccEndBlock, bool unlocked, bool stakingEnabled) =
+            stakeManager.pools(0);
 
-        assertTrue(startBlock == 10);
-        assertTrue(endBlock == 20);
+        assertTrue(pointAccStartBlock == 10);
+        assertTrue(pointAccEndBlock == 20);
         assertTrue(unlocked == true);
         assertTrue(stakingEnabled == true);
     }
@@ -47,7 +48,7 @@ contract StakeManagerCobstructorTest is Test {
     function testRevertNonOwner() public {
         startHoax(address(0x02));
         StakeManager.Pool memory pool =
-            StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
 
         vm.expectRevert("Ownable: caller is not the owner");
         stakeManager.createPool(pool);
@@ -67,7 +68,7 @@ contract StakeManagerOwnerChangeTest is Test {
         maskToken = new TestToken(initialSupply, "Mask Token", "MASK");
         stakeManager = new StakeManager(address(maskToken));
 
-        pool = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+        pool = StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
         stakeManager.createPool(pool);
 
         vm.stopPrank();
@@ -76,16 +77,17 @@ contract StakeManagerOwnerChangeTest is Test {
     function testChangePool() public {
         startHoax(address(0x01));
         StakeManager.Pool memory newPool =
-            StakeManager.Pool({ startBlock: 20, endBlock: 30, unlocked: false, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: false, stakingEnabled: true });
 
         vm.expectEmit();
         emit StakeManager.PoolUpdated(0, 20, 30, false, true);
         stakeManager.updatePool(0, newPool);
 
-        (uint256 startBlock, uint256 endBlock, bool unlocked, bool stakingEnabled) = stakeManager.pools(0);
+        (uint256 pointAccStartBlock, uint256 pointAccEndBlock, bool unlocked, bool stakingEnabled) =
+            stakeManager.pools(0);
 
-        assertTrue(startBlock == 20);
-        assertTrue(endBlock == 30);
+        assertTrue(pointAccStartBlock == 20);
+        assertTrue(pointAccEndBlock == 30);
         assertTrue(unlocked == false);
         assertTrue(stakingEnabled == true);
     }
@@ -93,7 +95,7 @@ contract StakeManagerOwnerChangeTest is Test {
     function testRevertArrayOutOfRange() public {
         startHoax(address(0x01));
         StakeManager.Pool memory newPool =
-            StakeManager.Pool({ startBlock: 20, endBlock: 30, unlocked: false, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: false, stakingEnabled: true });
 
         vm.expectRevert();
         stakeManager.updatePool(1, newPool);
@@ -101,7 +103,7 @@ contract StakeManagerOwnerChangeTest is Test {
 
     function testChangeCurrentPoolId() public {
         startHoax(address(0x01));
-        pool = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+        pool = StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
         stakeManager.createPool(pool);
         vm.expectEmit();
         emit StakeManager.CurrentPoolIdChanged(0, 1);
@@ -114,7 +116,7 @@ contract StakeManagerOwnerChangeTest is Test {
         startHoax(address(0x01));
 
         StakeManager.Pool memory pool2 =
-            StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: false });
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: false });
         stakeManager.createPool(pool2);
 
         vm.expectRevert("Staking is disabled for this pool");
@@ -143,13 +145,16 @@ contract StakeManagerUsageTest is Test {
         maskToken = new TestToken(initialSupply, "Mask Token", "MASK");
         stakeManager = new StakeManager(address(maskToken));
 
-        pool0 = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: true });
+        pool0 =
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
         stakeManager.createPool(pool0);
 
-        pool1 = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: false, stakingEnabled: true });
+        pool1 =
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: false, stakingEnabled: true });
         stakeManager.createPool(pool1);
 
-        pool2 = StakeManager.Pool({ startBlock: 10, endBlock: 20, unlocked: true, stakingEnabled: false });
+        pool2 =
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: false });
         stakeManager.createPool(pool2);
 
         stakeManager.updateCurrentPoolId(0);

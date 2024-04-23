@@ -74,7 +74,7 @@ contract StakeManagerOwnerChangeTest is Test {
         vm.stopPrank();
     }
 
-    function testChangePool() public {
+    function testUpdatePool() public {
         startHoax(address(0x01));
         StakeManager.Pool memory newPool =
             StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: false, stakingEnabled: true });
@@ -146,18 +146,16 @@ contract StakeManagerUsageTest is Test {
         stakeManager = new StakeManager(address(maskToken));
 
         pool0 =
-            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: false, stakingEnabled: true });
         stakeManager.createPool(pool0);
 
         pool1 =
-            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: false, stakingEnabled: true });
+            StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: true });
         stakeManager.createPool(pool1);
 
         pool2 =
             StakeManager.Pool({ pointAccStartBlock: 10, pointAccEndBlock: 20, unlocked: true, stakingEnabled: false });
         stakeManager.createPool(pool2);
-
-        stakeManager.updateCurrentPoolId(0);
 
         maskToken.transfer(address(0x02), 10_000 * 10 ** 18);
         vm.stopPrank();
@@ -193,6 +191,10 @@ contract StakeManagerUsageTest is Test {
 
     function testWithdraw() public {
         _deposit();
+        startHoax(address(0x01));
+        stakeManager.updatePool(
+            0, StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: true, stakingEnabled: true })
+        );
         startHoax(address(0x02));
 
         vm.expectEmit();
@@ -211,6 +213,13 @@ contract StakeManagerUsageTest is Test {
     function testChangePool() public {
         _deposit();
         startHoax(address(0x01));
+        stakeManager.updatePool(
+            0, StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: true, stakingEnabled: true })
+        );
+        stakeManager.updatePool(
+            1,
+            StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: false, stakingEnabled: true })
+        );
         stakeManager.updateCurrentPoolId(1);
         startHoax(address(0x02));
 
@@ -230,6 +239,13 @@ contract StakeManagerUsageTest is Test {
     function testRevertUnlocked() public {
         _deposit();
         startHoax(address(0x01));
+        stakeManager.updatePool(
+            0, StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: true, stakingEnabled: true })
+        );
+        stakeManager.updatePool(
+            1,
+            StakeManager.Pool({ pointAccStartBlock: 20, pointAccEndBlock: 30, unlocked: false, stakingEnabled: true })
+        );
         stakeManager.updateCurrentPoolId(1);
         startHoax(address(0x02));
         stakeManager.changePool();

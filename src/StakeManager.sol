@@ -77,6 +77,7 @@ contract StakeManager is Ownable, ReentrancyGuard {
         Pool storage fromPool = pools[userInfos[msg.sender].poolId];
         Pool storage toPool = pools[currentPoolId];
 
+        require(fromPoolId != currentPoolId, "No need to change");
         require(toPool.stakingEnabled, "Staking is disabled for this pool");
         require(fromPool.unlocked, "From pool is locked");
         require(userInfos[msg.sender].stakedAmount > 0, "No staked amount");
@@ -111,6 +112,10 @@ contract StakeManager is Ownable, ReentrancyGuard {
 
     function updateCurrentPoolId(uint8 _poolId) public onlyOwner {
         uint8 fromPoolId = currentPoolId;
+        Pool storage fromPool = pools[fromPoolId];
+
+        require(fromPool.unlocked, "From pool is locked");
+
         Pool storage pool = pools[_poolId];
         require(pool.stakingEnabled, "Staking is disabled for this pool");
 

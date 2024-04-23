@@ -55,6 +55,7 @@ contract Reward is Ownable, ReentrancyGuard {
     }
 
     function emergencyWithdraw(address _token, uint256 _amount) public onlyOwner {
-        IERC20(_token).transfer(msg.sender, _amount);
+        bool result = IERC20(_token).transfer(msg.sender, _amount);
+        require(result, "Transfer failed");
     }
 }

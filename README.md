@@ -8,6 +8,19 @@ This project is about staking MASK tokens to earn ecosystem token rewards. It co
 
 ## Getting Started
 
+### Deployed Contract Address
+
+<!-- begin address -->
+
+| Chain   | StakeManager                  | Reward                         |
+| ------- | ----------------------------- | ------------------------------ |
+| mainnet | [`0x1F984157`][stake-mainnet] | [`0x3D809E60`][reward-mainnet] |
+
+[stake-mainnet]: https://etherscan.io/address/0x3d809e601b12e36cd817c4234a2f05249112eabb
+[reward-mainnet]: https://etherscan.io/address/0x9903c9d15f7ee48d1f6d9c258cf1c1387603d851
+
+<!-- end address -->
+
 ### Build / Compile
 
 Build / Compile the contracts:

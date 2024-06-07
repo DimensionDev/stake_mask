@@ -14,10 +14,10 @@ This project is about staking MASK tokens to earn ecosystem token rewards. It co
 
 | Chain   | StakeManager                  | Reward                         |
 | ------- | ----------------------------- | ------------------------------ |
-| mainnet | [`0x1F984157`][stake-mainnet] | [`0x3D809E60`][reward-mainnet] |
+| mainnet | [`0x089f9e40`][stake-mainnet] | [`0xb55f6363`][reward-mainnet] |
 
-[stake-mainnet]: https://etherscan.io/address/0x3d809e601b12e36cd817c4234a2f05249112eabb
-[reward-mainnet]: https://etherscan.io/address/0x9903c9d15f7ee48d1f6d9c258cf1c1387603d851
+[stake-mainnet]: https://etherscan.io/address/0x089f9e409e2ae5837def520ce6bfb2fa03ce5128
+[reward-mainnet]: https://etherscan.io/address/0xb55f6363e8033641ada71afadabd667d071bc9b1
 
 <!-- end address -->
 
